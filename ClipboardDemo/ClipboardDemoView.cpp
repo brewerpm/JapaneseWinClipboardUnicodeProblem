@@ -82,7 +82,7 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	CPen pen;
 	COLORREF color = RGB(255, 0, 0); //gray
 	pen.CreatePen(PS_SOLID, 2, color);
-	CRect rectangle = CRect(CPoint(25, 25), CPoint(rect.Width() / 2 + 100, rect.Height() / 2 + 25));
+	CRect rectangle = CRect(CPoint(26, 26), CPoint(rect.Width() / 2 + 100, rect.Height() / 2 + 25));
 	pDC->SelectObject(&pen);
 	pDC->Rectangle(&rectangle);
 	pDC->Ellipse(&rectangle);
