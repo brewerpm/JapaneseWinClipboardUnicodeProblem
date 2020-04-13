@@ -1,0 +1,33 @@
+REGEDIT
+; This .REG file may be used by your SETUP program.
+;   If a SETUP program is not available, the entries below will be
+;   registered in your InitInstance automatically with a call to
+;   CWinApp::RegisterShellFileTypes and COleObjectFactory::UpdateRegistryAll.
+
+HKEY_CLASSES_ROOT\.clp = ClipboardDemo.Document
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\shell\open\command = ClipboardDemo.EXE %1
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\shell\open\ddeexec = [open("%1")]
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\shell\open\ddeexec\application = ClipboardDemo
+    ; note: the application is optional
+    ;  (it defaults to the app name in "command")
+
+HKEY_CLASSES_ROOT\ClipboardDemo.Document = ClipboardDemo.Document
+
+
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\protocol\StdFileEditing\server = ClipboardDemo.EXE
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\protocol\StdFileEditing\verb\0 = &Edit
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\Insertable =
+HKEY_CLASSES_ROOT\ClipboardDemo.Document\CLSID = {bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}
+
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60} = ClipboardDemo.Document
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\DefaultIcon = ClipboardDemo.EXE,1
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\LocalServer32 = ClipboardDemo.EXE
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\ProgId = ClipboardDemo.Document
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\MiscStatus = 32
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\AuxUserType\3 = ClipboardDemo
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\AuxUserType\2 = ClipboardDemo
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\Insertable =
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\verb\1 = &Open,0,2
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\verb\0 = &Edit,0,2
+HKEY_CLASSES_ROOT\CLSID\{bbc734a1-d11c-4fa3-8d1b-4ea47b80ac60}\InprocHandler32 = ole32.dll
+
