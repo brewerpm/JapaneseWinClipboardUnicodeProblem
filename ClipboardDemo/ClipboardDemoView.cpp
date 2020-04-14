@@ -60,7 +60,7 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	// TODO: add draw code for native data here
 	const CString method11 = L"Using MFC COleServerItem::CopyToClipboard method with Unicode strings";
 	const CString method12 = L"This does not work for enhanced metafile with extended ASCII characters > 127 on Japanese OS.";
-	const CString method21 = L"Using MFC COleServerItem::CopyToClipboard method with ASCII strings (char instead of wchar_t)";
+	const CString method21 = L"Using MFC COleServerItem::CopyToClipboard method with ANSI strings (char instead of wchar_t)";
 	const CString method22 = L"This does work for enhanced metafile with extended ASCII characters > 127 on Japanes OS.";
 	const CString method31 = L"Using C++ clipboard functions (like OpenClipboard, EmptyClipboard,";
 	const CString method32 = L"SetClipboardData, CloseClipboard) with Unicode strings. This also works on Japanese OS.";

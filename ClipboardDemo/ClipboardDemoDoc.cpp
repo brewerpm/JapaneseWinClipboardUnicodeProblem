@@ -217,6 +217,7 @@ void CClipboardDemoDoc::OnEditCopy()
 		}
 		if (pView == NULL)
 			return; // or do something that's helpful
+		// the following thanks to https://www.codeproject.com/Articles/12353/Add-Clipboard-Copy-Functionality-Easily-with-Metaf
 		HWND hwnd = pView->GetSafeHwnd();
 		CDC* pDC = pView->GetDC();
 		CMetaFileDC mfdc;
@@ -231,11 +232,6 @@ void CClipboardDemoDoc::OnEditCopy()
 					CloseClipboard();
 				}
 				else {
-					/*
-					 * The metafile is deleted only
-					 * when it has not been set in
-					 * the clipboard.
-					 */
 					::DeleteEnhMetaFile(hmf);
 				}
 			}
