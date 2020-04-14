@@ -190,6 +190,7 @@
     <ClInclude Include="ClipboardDemo.h" />
     <ClInclude Include="ClipboardDemoDoc.h" />
     <ClInclude Include="ClipboardDemoView.h" />
+    <ClInclude Include="Dialog1.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IpFrame.h" />
     <ClInclude Include="MainFrm.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="ClipboardDemo.cpp" />
     <ClCompile Include="ClipboardDemoDoc.cpp" />
     <ClCompile Include="ClipboardDemoView.cpp" />
+    <ClCompile Include="Dialog1.cpp" />
     <ClCompile Include="IpFrame.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="pch.cpp">

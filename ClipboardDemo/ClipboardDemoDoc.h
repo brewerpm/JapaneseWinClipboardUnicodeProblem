@@ -7,6 +7,7 @@
 
 
 class CClipboardDemoSrvrItem;
+class CDialog1;
 
 class CClipboardDemoDoc : public COleServerDoc
 {
@@ -55,6 +56,12 @@ protected:
 public:
 	afx_msg void OnUpdateEditCopy(CCmdUI* pCmdUI);
 	afx_msg void OnEditCopy();
+	afx_msg void OnUpdateViewDemoMethod(CCmdUI* pCmdUI);
+	afx_msg void OnViewDemoMethod();
 
 	CString m_s1, m_s2;
+	int m_method; // 0: OleServerItem, Unicode strings  1: OleServerItem, ASCII strings  2: Manual clipboard functions & Unicode strings
+	bool m_bDemoMethodDialogActive;
+	CDialog1* m_pDlg;
+	virtual COleIPFrameWnd* CreateInPlaceFrame(CWnd* pParentWnd);
 };

@@ -117,7 +117,7 @@ BOOL CClipboardDemoSrvrItem::OnDraw(CDC* pDC, CSize& rSize)
 		}
 	}
 	if (pView != NULL) {
-		CSize size = ((CClipboardDemoView*)pView)->m_objectSize;
+		//CSize size = ((CClipboardDemoView*)pView)->m_objectSize;
 		rSize = ((CClipboardDemoView*)pView)->m_objectSize;
 
 		pDC->SetMapMode(MM_ANISOTROPIC);
@@ -125,7 +125,7 @@ BOOL CClipboardDemoSrvrItem::OnDraw(CDC* pDC, CSize& rSize)
 		pDC->SetWindowExt(rSize);
 		pDC->SetViewportExt(rSize);  // Note: only affects the m_hAttribDC
 
-		pDC->LPtoHIMETRIC(&rSize);   // convert pixels to HIMETRIC
+		pDC->DPtoHIMETRIC(&rSize);   // convert pixels to HIMETRIC
 		((CClipboardDemoView*)pView)->OnDraw(pDC);
 	}
 

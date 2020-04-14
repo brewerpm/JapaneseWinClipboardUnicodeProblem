@@ -10,6 +10,7 @@
 #include "ClipboardDemo.h"
 #endif
 
+#include "Dialog1.h"
 #include "ClipboardDemoDoc.h"
 #include "ClipboardDemoView.h"
 #include "SrvrItem.h"
@@ -28,6 +29,9 @@ IMPLEMENT_DYNCREATE(CClipboardDemoDoc, COleServerDoc)
 BEGIN_MESSAGE_MAP(CClipboardDemoDoc, COleServerDoc)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CClipboardDemoDoc::OnUpdateEditCopy)
 	ON_COMMAND(ID_EDIT_COPY, &CClipboardDemoDoc::OnEditCopy)
+	// ID_VIEW_DEMONSTRATIONMETHODDIALOG
+	ON_UPDATE_COMMAND_UI(ID_VIEW_DEMONSTRATIONMETHODDIALOG, &CClipboardDemoDoc::OnUpdateViewDemoMethod)
+	ON_COMMAND(ID_VIEW_DEMONSTRATIONMETHODDIALOG, &CClipboardDemoDoc::OnViewDemoMethod)
 END_MESSAGE_MAP()
 
 
@@ -36,10 +40,12 @@ END_MESSAGE_MAP()
 CClipboardDemoDoc::CClipboardDemoDoc() noexcept
 {
 	// Use OLE compound files
-	EnableCompoundFile();
+	//EnableCompoundFile();
 
 	// TODO: add one-time construction code here
-
+	m_method = 0; // 0: OleServerItem, Unicode strings  1: OleServerItem, ASCII strings  2: Manual clipboard functions & Unicode strings
+	m_bDemoMethodDialogActive = false;
+	m_pDlg = NULL;
 }
 
 CClipboardDemoDoc::~CClipboardDemoDoc()
@@ -55,6 +61,11 @@ BOOL CClipboardDemoDoc::OnNewDocument()
 	// (SDI documents will reuse this document)
 	m_s1 = L"Do a ctrl-c and then paste into WordPad on Japanese OS.";
 	m_s2 = L"Here's some extended chars from Symbol font: ";
+	m_method = 0; // 0: OleServerItem, Unicode strings  1: OleServerItem, ASCII strings  2: Manual clipboard functions & Unicode strings
+	m_bDemoMethodDialogActive = false;
+	m_pDlg = NULL;
+
+	OnViewDemoMethod();
 
 	return TRUE;
 }
@@ -188,47 +199,48 @@ void CClipboardDemoDoc::OnEditCopy()
 	//int codePage = _getmbcp(); // save original code page
 	//_setmbcp(1252); // set to western; Japanese is 932 (if I remember correctly)
 
-	//Using COleServerItem::CopyToClipboard causes chars > 127 to render improperly (wrong font)
-	//If you comment out the next two lines and uncomment the code below, the it works!!
-	CClipboardDemoSrvrItem* pItem = GetEmbeddedItem();
-	pItem->CopyToClipboard(FALSE);
-
-	//******** Uncomment this code to see that it works if one doesn't use OLE *************
-	//CView* pView = NULL;
-	//POSITION pos = GetFirstViewPosition();
-	//while (pos != NULL)	{
-	//	pView = GetNextView(pos);
-	//	if (pView->IsKindOf(RUNTIME_CLASS(CClipboardDemoView)))
-	//		break;
-	//	else {
-	//		pView = NULL; //keep looking
-	//	}
-	//}
-	//if (pView == NULL)
-	//	return; // or do something that's helpful
-	//HWND hwnd = pView->GetSafeHwnd();
-	//CDC* pDC = pView->GetDC();
-	//CMetaFileDC mfdc;
-	//if (mfdc.CreateEnhanced(NULL, NULL, NULL, NULL)) {
-	//	mfdc.SetAttribDC(pDC->m_hAttribDC); // do this or get an assert when doing attribute GDI calls like GetTextExtent or GetDeviceCaps
-	//	((CClipboardDemoView*)pView)->OnDraw(&mfdc); // Draw to the metafile dc
-	//	HENHMETAFILE hmf;
-	//	if ((hmf = mfdc.CloseEnhanced())) {
-	//		if (OpenClipboard(hwnd)) {
-	//			EmptyClipboard();
-	//			SetClipboardData(CF_ENHMETAFILE, hmf); // then put it on the clipboard
-	//			CloseClipboard();
-	//		}
-	//		else {
-	//			/*
-	//			 * The metafile is deleted only
-	//			 * when it has not been set in
-	//			 * the clipboard.
-	//			 */
-	//			::DeleteEnhMetaFile(hmf);
-	//		}
-	//	}
-	//}
+	if (m_method != 2) { // use COleServerItem::CopyToClipboard
+		//Using COleServerItem::CopyToClipboard causes chars > 127 to render improperly (wrong font)
+		CClipboardDemoSrvrItem* pItem = GetEmbeddedItem();
+		pItem->CopyToClipboard(FALSE);
+	}
+	else {
+		CView* pView = NULL;
+		POSITION pos = GetFirstViewPosition();
+		while (pos != NULL)	{
+			pView = GetNextView(pos);
+			if (pView->IsKindOf(RUNTIME_CLASS(CClipboardDemoView)))
+				break;
+			else {
+				pView = NULL; //keep looking
+			}
+		}
+		if (pView == NULL)
+			return; // or do something that's helpful
+		HWND hwnd = pView->GetSafeHwnd();
+		CDC* pDC = pView->GetDC();
+		CMetaFileDC mfdc;
+		if (mfdc.CreateEnhanced(NULL, NULL, NULL, NULL)) {
+			mfdc.SetAttribDC(pDC->m_hAttribDC); // do this or get an assert when doing attribute GDI calls like GetTextExtent or GetDeviceCaps
+			((CClipboardDemoView*)pView)->OnDraw(&mfdc); // Draw to the metafile dc
+			HENHMETAFILE hmf;
+			if ((hmf = mfdc.CloseEnhanced())) {
+				if (OpenClipboard(hwnd)) {
+					EmptyClipboard();
+					SetClipboardData(CF_ENHMETAFILE, hmf); // then put it on the clipboard
+					CloseClipboard();
+				}
+				else {
+					/*
+					 * The metafile is deleted only
+					 * when it has not been set in
+					 * the clipboard.
+					 */
+					::DeleteEnhMetaFile(hmf);
+				}
+			}
+		}
+	}
 	// *******************************************************************
 
 	// ************ The following code sets the locale to "en-US" in the clipboard but does help ***********************
@@ -247,4 +259,57 @@ void CClipboardDemoDoc::OnEditCopy()
 	//	CloseClipboard();
 	//	GlobalFree(hg);
 	//}
+}
+void CClipboardDemoDoc::OnUpdateViewDemoMethod(CCmdUI* pCmdUI) {
+	// TODO: Add your command update UI handler code here
+	if(!m_bDemoMethodDialogActive)
+		pCmdUI->Enable();
+	else
+		pCmdUI->Enable(FALSE);
+}
+void CClipboardDemoDoc::OnViewDemoMethod() {
+	CClipboardDemoApp* pApp = (CClipboardDemoApp*)AfxGetApp();
+	POSITION pos = GetFirstViewPosition();
+	if (pos != NULL) {
+		CView* pView = GetNextView(pos);
+		//pFrame = (CAstrFrame*)pView->GetParentFrame();
+		//ASSERT_VALID(pFrame);
+		CDialog1* pDlg = new CDialog1(pApp->m_pMainWnd);
+		if (pDlg != NULL)
+		{
+			pDlg->m_pDoc = this;
+			//pDlg->m_bDoModal = false;
+			//pDlg->m_pAstrFrame = pFrame;
+			BOOL ret = pDlg->Create(IDD_DIALOG1, pApp->m_pMainWnd);
+			if (!ret)
+				AfxMessageBox(_T("Create dialog failed!"));
+			else
+			{
+				CRect rect;
+				pView->GetClientRect(&rect);
+				pView->ClientToScreen(&rect);
+				//HWND hWnd = pView->GetSafeHwnd();
+				int resFactor = GetDeviceCaps(pView->GetDC()->GetSafeHdc(), LOGPIXELSX) / 96; /*GetDpiForWindow(hWnd) / 96;*/
+				pDlg->SetWindowPos(&CWnd::wndTop, rect.left + 300 * resFactor, rect.top + 75 * resFactor, 0, 0, SWP_NOSIZE);
+				
+				m_pDlg = pDlg;
+				m_bDemoMethodDialogActive = true;
+				pDlg->ShowWindow(SW_SHOWNORMAL);
+			}
+
+		}
+		else
+			AfxMessageBox(_T("Create dialog failed!"));
+	}
+	else
+		AfxMessageBox(_T("Create dialog failed!"));
+}
+
+
+COleIPFrameWnd* CClipboardDemoDoc::CreateInPlaceFrame(CWnd* pParentWnd)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	AfxMessageBox(L"CreateInPlaceFrame");
+
+	return COleServerDoc::CreateInPlaceFrame(pParentWnd);
 }

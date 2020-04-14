@@ -58,6 +58,12 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 	// TODO: add draw code for native data here
+	const CString method11 = L"Using MFC COleServerItem::CopyToClipboard method with Unicode strings";
+	const CString method12 = L"This does not work for enhanced metafile with extended ASCII characters > 127 on Japanese OS.";
+	const CString method21 = L"Using MFC COleServerItem::CopyToClipboard method with ASCII strings (char instead of wchar_t)";
+	const CString method22 = L"This does work for enhanced metafile with extended ASCII characters > 127 on Japanes OS.";
+	const CString method31 = L"Using C++ clipboard functions (like OpenClipboard, EmptyClipboard,";
+	const CString method32 = L"SetClipboardData, CloseClipboard) with Unicode strings. This also works on Japanese OS.";
 
 	CFont font1, symbolFont;
 	CFont* pOldFont;
@@ -67,14 +73,12 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	memset(( void * )&lf, 0, sizeof( LOGFONT ));
 	lf.lfCharSet = ANSI_CHARSET;
 	lf.lfWeight = 400; //normal
-	lf.lfQuality = PROOF_QUALITY;
-	lf.lfOutPrecision = OUT_TT_ONLY_PRECIS;
-	_tcscpy_s( lf.lfFaceName, _T("TimesNewRoman") );
+	_tcscpy_s( lf.lfFaceName, L"Times New Roman" );
 	lf.lfHeight = (int)(fabs(fontSizePoints) * pDC->GetDeviceCaps(LOGPIXELSY) / 72);
 	font1.CreateFontIndirect(&lf);
 	pDC->GetTextMetrics(&tm1);
 	// symbol font
-	_tcscpy_s(lf.lfFaceName, _T("Symbol"));
+	_tcscpy_s(lf.lfFaceName, L"Symbol");
 	symbolFont.CreateFontIndirect(&lf);
 
 	CRect rect;
@@ -88,7 +92,7 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	pDC->Ellipse(&rectangle);
 	int x = 50;
 	int y = 100;
-	int lineHeight = 2 * tm1.tmExternalLeading + tm1.tmHeight;
+	int lineHeight = 2 * tm1.tmExternalLeading + tm1.tmHeight + 5;
 	pOldFont = pDC->SelectObject(&font1);
 	//pDC->TextOut(x, y, s1);
 	HDC hdc = pDC->GetSafeHdc();
@@ -97,14 +101,41 @@ void CClipboardDemoView::OnDraw(CDC* pDC)
 	pDC->TextOut(x, y, pDoc->m_s2);
 	//*** NOTE: If the following string is changed CStringA and output using TextOutA or ExtTextOutA, then it works !!!
 	CString s3 = L"À Ã Å Ç É Ì Î"; // extended chars in slots > 127 ascii *** change to StringA and it works !!!
-	pDC->SelectObject(&symbolFont);
+	CStringA s4 = "À Ã Å Ç É Ì Î";
+	pDC->SelectObject(&symbolFont); // ** use Symbol font extended chars
 	y += lineHeight;
-	pDC->TextOutW(x, y, s3);// *** comment this line and uncomment the next line if using CStringA !!!!
-	//TextOutA(hdc, x, y, s3, s3.GetLength()); // *** uncomment this line if using CStringA !!!!
-	m_objectSize.cx = rectangle.Width() + 50;
-	m_objectSize.cy = rectangle.Height() + 50;
+	if(pDoc->m_method == 0 || pDoc->m_method == 2)
+		pDC->TextOutW(x, y, s3);
+	else
+		TextOutA(hdc, x, y, s4, s4.GetLength());
+	pDC->SelectObject(&font1);
+	y += 125;
+	x = 25;
+	switch (pDoc->m_method) {
+	case 0:
+		pDC->TextOut(x, y, method11);
+		y += lineHeight;
+		pDC->TextOut(x, y, method12);
+		m_objectSize.cx = x + max(pDC->GetTextExtent(method11).cx, pDC->GetTextExtent(method12).cx);
+		break;
+	case 1:
+		pDC->TextOut(x, y, method21);
+		y += lineHeight;
+		pDC->TextOut(x, y, method22);
+		m_objectSize.cx = x + max(pDC->GetTextExtent(method21).cx, pDC->GetTextExtent(method22).cx);
+		break;
+	case 2:
+		pDC->TextOut(x, y, method31);
+		y += lineHeight;
+		pDC->TextOut(x, y, method32);
+		m_objectSize.cx = x + max(pDC->GetTextExtent(method31).cx, pDC->GetTextExtent(method32).cx);
+		break;
+	}
+	m_objectSize.cx += 10;
+	m_objectSize.cy = y + lineHeight;
 	pDC->SelectObject(pOldFont);
 	font1.DeleteObject();
+	symbolFont.DeleteObject();
 }
 
 
@@ -168,4 +199,11 @@ void CClipboardDemoView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 	pDC->SetViewportExt(CSize(1,1));
 	pDC->SetWindowExt(CSize(1, 1));
 	CView::OnPrepareDC(pDC, pInfo);
+}
+
+
+void CClipboardDemoView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	Invalidate();
 }

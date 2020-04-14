@@ -44,6 +44,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
+	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
 };
 
 #ifndef _DEBUG  // debug version in ClipboardDemoView.cpp
